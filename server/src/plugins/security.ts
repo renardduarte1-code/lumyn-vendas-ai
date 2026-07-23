@@ -1,10 +1,11 @@
 import type { FastifyInstance } from 'fastify';
+import fp from 'fastify-plugin';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import rateLimit from '@fastify/rate-limit';
 import { env } from '../config';
 
-export async function securityPlugins(app: FastifyInstance): Promise<void> {
+async function registerSecurityPlugins(app: FastifyInstance): Promise<void> {
   await app.register(cors, {
     origin: env.CORS_ORIGIN,
     credentials: true,
@@ -25,3 +26,7 @@ export async function securityPlugins(app: FastifyInstance): Promise<void> {
     timeWindow: '1 minute',
   });
 }
+
+// Wrap with fastify-plugin so decorators (reply.setCookie, etc.)
+// propagate to the parent scope where routes are registered.
+export const securityPlugins = fp(registerSecurityPlugins, { fastify: '4.x' });

@@ -29,6 +29,14 @@ export function errorHandler(
     });
   }
 
+  // Respect statusCode on FastifyError (e.g. rate limit 429, not-found 404).
+  if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+    return reply.status(error.statusCode).send({
+      message: error.message || 'Request error',
+      code: error.code || 'REQUEST_ERROR',
+    });
+  }
+
   request.log.error(error);
   return reply.status(500).send({
     message: 'Internal server error',

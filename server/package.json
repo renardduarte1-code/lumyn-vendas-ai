@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "echo No tests configured && exit 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
@@ -30,6 +31,7 @@
     "@types/node": "^20.16.1",
     "prisma": "^5.19.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.10"
   }
 }
