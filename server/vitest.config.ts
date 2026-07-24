@@ -21,5 +21,9 @@ export default defineConfig({
     testTimeout: 30000,
     hookTimeout: 30000,
     pool: 'forks',
+    // Os testes de integração compartilham o mesmo banco PostgreSQL de teste.
+    // Executar arquivos de teste em paralelo causa flutuação; manter sequencial
+    // até que cada worker receba schema/BD isolado (dívida P1).
+    fileParallelism: false,
   },
 });

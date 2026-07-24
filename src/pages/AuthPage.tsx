@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { signIn, signUp } from '../services/authService';
 
 export function AuthPage() {
@@ -18,7 +19,6 @@ export function AuthPage() {
       if (mode === 'login') {
         await signIn(email, password);
       } else {
-        // Backend returns a session on registration — auto-login.
         await signUp(email, password, fullName, companyName);
       }
     } catch (err) {
@@ -29,77 +29,81 @@ export function AuthPage() {
   };
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-slate-50 p-4'>
-      <form
-        onSubmit={handleSubmit}
-        className='card w-full max-w-md space-y-4 p-8'
-      >
-        <h1 className='text-2xl font-bold text-slate-800'>
+    <div className='flex min-h-screen items-center justify-center bg-surface-400 p-4'>
+      <div className='w-full max-w-md space-y-6 rounded-2xl border border-surface-border bg-surface-card/70 p-8 shadow-card backdrop-blur'>
+        <div className='mb-6 flex items-center justify-center gap-3'>
+          <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-lumyn-500 to-lumyn-700'>
+            <Sparkles size={20} className='text-white' />
+          </div>
+          <div className='text-left'>
+            <div className='text-sm font-bold text-white'>LUMYN</div>
+            <div className='text-[0.7rem] tracking-[0.08em] text-lumyn-300'>VENDAS AI</div>
+          </div>
+        </div>
+
+        <h1 className='text-center text-2xl font-bold text-white'>
           {mode === 'login' ? 'Entrar' : 'Criar conta'}
         </h1>
 
-        {mode === 'signup' && (
-          <>
-            <input
-              className='input w-full'
-              type='text'
-              placeholder='Nome completo'
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-            <input
-              className='input w-full'
-              type='text'
-              placeholder='Nome da empresa'
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              required
-            />
-          </>
-        )}
-
-        <input
-          className='input w-full'
-          type='email'
-          placeholder='E-mail'
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          className='input w-full'
-          type='password'
-          placeholder='Senha'
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-        />
-
         {message && (
-          <div className='rounded bg-slate-100 p-2 text-sm text-slate-700'>
+          <div className='rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-400'>
             {message}
           </div>
         )}
 
-        <button
-          type='submit'
-          className='btn-primary w-full'
-          disabled={loading}
-        >
-          {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar' : 'Cadastrar'}
-        </button>
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          {mode === 'signup' && (
+            <>
+              <input
+                className='input'
+                type='text'
+                placeholder='Nome completo'
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+              <input
+                className='input'
+                type='text'
+                placeholder='Nome da empresa'
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
+              />
+            </>
+          )}
+          <input
+            className='input'
+            type='email'
+            placeholder='E-mail'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            className='input'
+            type='password'
+            placeholder='Senha'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type='submit' className='btn-primary w-full' disabled={loading}>
+            {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar' : 'Cadastrar'}
+          </button>
+        </form>
 
-        <button
-          type='button'
-          className='btn-secondary w-full'
-          onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-        >
-          {mode === 'login' ? 'Criar nova conta' : 'Já tenho conta'}
-        </button>
-      </form>
+        <p className='text-center text-sm text-slate-500'>
+          {mode === 'login' ? 'Ainda não tem conta?' : 'Já tem conta?'}{' '}
+          <button
+            type='button'
+            className='text-lumyn-300 hover:underline'
+            onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+          >
+            {mode === 'login' ? 'Criar conta' : 'Entrar'}
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

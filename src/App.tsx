@@ -7,7 +7,6 @@ import { DashboardPage } from './pages/DashboardPage';
 import { CompaniesPage } from './pages/CompaniesPage';
 import { LeadListsPage } from './pages/LeadListsPage';
 import { AgentPage } from './pages/AgentPage';
-import { CreditsPage } from './pages/CreditsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
@@ -20,7 +19,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className='flex h-screen items-center justify-center text-slate-500'>
+      <div className='flex h-screen items-center justify-center bg-surface-400 text-slate-500'>
         Carregando...
       </div>
     );
@@ -33,10 +32,9 @@ function App() {
   return (
     <Layout>
       {page === 'dashboard' && <DashboardPage />}
+      {page === 'agent' && <AgentPage />}
       {page === 'companies' && <CompaniesPage />}
       {page === 'lists' && <LeadListsPage />}
-      {page === 'agent' && <AgentPage />}
-      {page === 'credits' && <CreditsPage />}
       {page === 'settings' && <SettingsPage />}
     </Layout>
   );
