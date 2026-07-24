@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { apiClient } from '../lib/apiClient';
+import { apiClient, setSessionLostHandler } from '../lib/apiClient';
+import { setAccessToken, clearAccessToken } from '../lib/tokenStore';
 import type { User, Tenant } from '../types';
 
 interface AuthResponse {
@@ -11,7 +12,6 @@ interface AuthResponse {
 interface AuthState {
   user: User | null;
   tenant: Tenant | null;
-  accessToken: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string, companyName: string) => Promise<void>;
@@ -19,10 +19,9 @@ interface AuthState {
   initialize: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   tenant: null,
-  accessToken: null,
   loading: true,
 
   signIn: async (email, password) => {
@@ -30,8 +29,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    localStorage.setItem('accessToken', data.accessToken);
-    set({ user: data.user, tenant: data.tenant, accessToken: data.accessToken, loading: false });
+    setAccessToken(data.accessToken);
+    set({ user: data.user, tenant: data.tenant, loading: false });
   },
 
   signUp: async (email, password, fullName, companyName) => {
@@ -39,33 +38,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       method: 'POST',
       body: JSON.stringify({ email, password, fullName, companyName }),
     });
-    localStorage.setItem('accessToken', data.accessToken);
-    set({ user: data.user, tenant: data.tenant, accessToken: data.accessToken, loading: false });
+    // Backend returns a session on registration — auto-login.
+    setAccessToken(data.accessToken);
+    set({ user: data.user, tenant: data.tenant, loading: false });
   },
 
   signOut: async () => {
     try {
       await apiClient('/auth/logout', { method: 'POST' });
     } catch {
-      // ignore
+      // Ignore API errors — clear local state regardless.
     }
-    localStorage.removeItem('accessToken');
-    set({ user: null, tenant: null, accessToken: null, loading: false });
+    clearAccessToken();
+    set({ user: null, tenant: null, loading: false });
   },
 
   initialize: async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      set({ loading: false });
-      return;
-    }
+    // Register session-lost handler so apiClient can notify us.
+    setSessionLostHandler(() => {
+      clearAccessToken();
+      set({ user: null, tenant: null, loading: false });
+    });
 
+    // Try to restore the session via the HttpOnly refresh cookie.
     try {
-      const data = await apiClient<AuthResponse>('/auth/me');
-      localStorage.setItem('accessToken', data.accessToken);
-      set({ user: data.user, tenant: data.tenant, accessToken: data.accessToken, loading: false });
+      const data = await apiClient<AuthResponse>('/auth/refresh', {
+        method: 'POST',
+      });
+      // Refresh succeeded — fetch the full profile.
+      setAccessToken(data.accessToken);
+      set({ user: data.user, tenant: data.tenant, loading: false });
     } catch {
-      set({ user: null, tenant: null, accessToken: null, loading: false });
+      // No valid session — stay unauthenticated.
+      clearAccessToken();
+      set({ user: null, tenant: null, loading: false });
     }
   },
 }));

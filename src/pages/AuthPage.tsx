@@ -18,9 +18,8 @@ export function AuthPage() {
       if (mode === 'login') {
         await signIn(email, password);
       } else {
+        // Backend returns a session on registration — auto-login.
         await signUp(email, password, fullName, companyName);
-        setMessage('Cadastro criado. Faça login para continuar.');
-        setMode('login');
       }
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Erro inesperado');
