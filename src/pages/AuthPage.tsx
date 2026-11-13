@@ -90,7 +90,7 @@ export function AuthPage() {
           className='btn-primary w-full'
           disabled={loading}
         >
-          {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar' : 'Cadastrar'}
+          {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar na Lumyn' : 'Cadastrar'}
         </button>
 
         <button
